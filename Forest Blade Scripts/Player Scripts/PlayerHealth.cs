@@ -7,8 +7,11 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField]
     private int maxHealth = 100;
     private int currentHealth;
+    private bool hurtInvincibilityActive;
+    private float invincibilityWindowTimer;
 
     public Slider healthSlider;
+    public float invincibilityWindowTime = 1f;
     public event Action PlayerHurt = delegate { };
     public static event Action PlayerDeath = delegate { };
     public event Action<Vector2> PlayerKnockBack = delegate { };
@@ -19,11 +22,23 @@ public class PlayerHealth : MonoBehaviour
     {
         //Sets Player Max Health
         SetMaxHealth(maxHealth);
+
+        invincibilityWindowTimer = invincibilityWindowTime;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (hurtInvincibilityActive)
+        {
+            invincibilityWindowTimer -= Time.deltaTime;
+
+            if (invincibilityWindowTimer <= 0)
+            {
+                hurtInvincibilityActive = false;
+                invincibilityWindowTimer = invincibilityWindowTime;
+            }
+        }
 
     }
 
@@ -53,8 +68,12 @@ public class PlayerHealth : MonoBehaviour
     //If Player Attacked By Enemy, Take Damage
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy") && LayerMask.LayerToName(collision.gameObject.layer) == "Enemy")
         {
+            if (hurtInvincibilityActive)
+                return;
+
+            hurtInvincibilityActive = true;
             PlayerHurt();
             UpdateHealth(-10);
         }
@@ -63,14 +82,19 @@ public class PlayerHealth : MonoBehaviour
     //If Player Touches Enemy, Take Damage And Add Knockback Effect To Player By Sending Message With Knockback Direction
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag("Enemy"))
+        if (collision.collider.CompareTag("Enemy") && LayerMask.LayerToName(collision.gameObject.layer) == "Enemy")
         {
             Vector2 playerPos = transform.position;
             Vector2 enemyPos = collision.transform.position;
             Vector2 collisionDirection = enemyPos - playerPos;
+            PlayerKnockBack(collisionDirection.normalized);
+
+            if (hurtInvincibilityActive)
+                return;
+
+            hurtInvincibilityActive = true;
             PlayerHurt();
             UpdateHealth(-10);
-            PlayerKnockBack(collisionDirection.normalized);
         }
     }
 }
