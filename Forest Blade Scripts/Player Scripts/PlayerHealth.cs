@@ -68,7 +68,7 @@ public class PlayerHealth : MonoBehaviour
     //If Player Attacked By Enemy, Take Damage
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy") && LayerMask.LayerToName(collision.gameObject.layer) == "Enemy")
+        if (collision.CompareTag("Enemy"))
         {
             if (hurtInvincibilityActive)
                 return;
@@ -87,13 +87,13 @@ public class PlayerHealth : MonoBehaviour
             Vector2 playerPos = transform.position;
             Vector2 enemyPos = collision.transform.position;
             Vector2 collisionDirection = enemyPos - playerPos;
+            PlayerHurt();
             PlayerKnockBack(collisionDirection.normalized);
 
             if (hurtInvincibilityActive)
                 return;
 
             hurtInvincibilityActive = true;
-            PlayerHurt();
             UpdateHealth(-10);
         }
     }
