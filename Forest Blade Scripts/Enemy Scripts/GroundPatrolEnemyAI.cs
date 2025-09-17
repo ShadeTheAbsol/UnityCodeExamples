@@ -22,11 +22,13 @@ public class GroundPatrolEnemyAI : MonoBehaviour
     private bool attackMode;
 
     private bool cooling;
-    private bool playerDead;
     private float attackCooldownTimer;
     private Vector2 leftPatrolPosition;
     private Vector2 rightPatrolPosition;
     private Vector2 targetPos;
+    [SerializeField]
+    private GameObject enemyCollider;
+    private LayerMask deadEnemyLayer;
     #endregion
 
     #region Public Variables
@@ -102,6 +104,9 @@ public class GroundPatrolEnemyAI : MonoBehaviour
 
     private void Move()
     {
+        if (enemyAnimController.GetBool("Dead"))
+            return;
+
         enemyAnimController.SetBool("Walking", true);
 
         //If Enemy Is Not Currently In Attack Animation, Let Them Move Towards Player
@@ -154,7 +159,6 @@ public class GroundPatrolEnemyAI : MonoBehaviour
     //Called When Player Is Dead To End Attack Immediately And Return To Patrol
     private void GameOver()
     {
-        playerDead = true;
         StopAttack();
         target = null;
         SelectTarget();
@@ -224,7 +228,17 @@ public class GroundPatrolEnemyAI : MonoBehaviour
     {
         if (collision.CompareTag("Player Weapon"))
         {
-            gameObject.SetActive(false);
+            enemyAnimController.SetBool("Walking", false);
+            enemyAnimController.SetBool("Dead", true);
+            gameObject.layer = LayerMask.NameToLayer("Dead Enemies");
+            enemyCollider.layer = LayerMask.NameToLayer("Dead Enemies");
+            StopAttack();
+            target = null;
         }
+    }
+
+    private void HideEnemy()
+    {
+        gameObject.SetActive(false);
     }
 }
