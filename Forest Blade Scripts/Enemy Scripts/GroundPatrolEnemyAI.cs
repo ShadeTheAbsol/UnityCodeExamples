@@ -30,7 +30,7 @@ public class GroundPatrolEnemyAI : MonoBehaviour
     #endregion
 
     #region Public Variables
-    public Transform target;
+    [HideInInspector] public Transform target;
     [HideInInspector] public bool inRange;
     public GameObject hotZone;
     public GameObject playerDetectionArea;
