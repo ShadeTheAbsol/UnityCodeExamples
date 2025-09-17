@@ -23,7 +23,6 @@ public class PlayerControllerInputSystem : MonoBehaviour
     private float previousAttackTime;
     private bool attackStarted;
 
-
     public float speed = 1;
     public float jumpStrength = 1;
     public float knockbackStrength = 1;
@@ -227,6 +226,9 @@ public class PlayerControllerInputSystem : MonoBehaviour
     private void PlayerHurt()
     {
         playerAnimController.SetTrigger("Hurt");
+        attackStarted = false;
+        comboCounter = 0;
+        playerAnimController.SetInteger("Attack State", comboCounter);
     }
 
     private void PlayerDead()
